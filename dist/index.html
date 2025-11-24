@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#2c3e50" />
+    <meta name="description" content="PGK Construction - Professional Construction Management System for tracking projects, expenses, and client management" />
+    <meta name="keywords" content="construction, project management, expenses, clients, building, construction tracking" />
+    <meta name="author" content="PGK Construction" />
+    
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="PGK Construction Management" />
+    <meta property="og:description" content="Complete construction project management system" />
+    <meta property="og:type" content="website" />
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" 
+          integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" 
+          crossorigin="anonymous" referrerpolicy="no-referrer" />
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <title>PGK Construction - Complete Project Management</title>
+    
+    <style>
+      /* Loading Screen Styles */
+      #loading-screen {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+        color: white;
+        font-family: 'Inter', sans-serif;
+      }
+      
+      .loading-logo {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        animation: pulse 2s infinite;
+      }
+      
+      .loading-text {
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+      }
+      
+      .loading-spinner {
+        width: 50px;
+        height: 50px;
+        border: 4px solid rgba(255, 255, 255, 0.3);
+        border-top: 4px solid white;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+      }
+      
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+      
+      @keyframes pulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+      }
+      
+      /* Hide loading screen when app loads */
+      .app-loaded #loading-screen {
+        display: none;
+      }
+    </style>
+    <script type="module" crossorigin src="/assets/index-B22GBs0e.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-B-e07oEL.css">
+  </head>
+  <body>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    
+    <!-- Loading Screen -->
+    <div id="loading-screen">
+      <div class="loading-logo">
+        <i class="fas fa-hard-hat"></i>
+      </div>
+      <div class="loading-text">
+        PGK Construction
+      </div>
+      <div class="loading-spinner"></div>
+      <div style="margin-top: 1rem; font-size: 0.9rem; opacity: 0.8;">
+        Loading Construction Management System...
+      </div>
+    </div>
+    
+    <!-- React App Root -->
+    <div id="root"></div>
+    
+    <!-- Vite Entry Point -->
+    
+    <script>
+      // Remove loading screen when app is ready
+      window.addEventListener('load', function() {
+        setTimeout(function() {
+          document.body.classList.add('app-loaded');
+        }, 1000);
+      });
+    </script>
+  </body>
+</html>

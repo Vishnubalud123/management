@@ -1,9 +1,8 @@
-
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
+    <link rel="icon" href="/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#2c3e50" />
     <meta name="description" content="PGK Construction - Professional Construction Management System for tracking projects, expenses, and client management" />
@@ -14,9 +13,6 @@
     <meta property="og:title" content="PGK Construction Management" />
     <meta property="og:description" content="Complete construction project management system" />
     <meta property="og:type" content="website" />
-    
-    <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
-    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
     
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" 
@@ -105,6 +101,9 @@
     <!-- React App Root -->
     <div id="root"></div>
     
+    <!-- Vite Entry Point -->
+    <script type="module" src="/src/index.js"></script>
+    
     <script>
       // Remove loading screen when app is ready
       window.addEventListener('load', function() {
@@ -112,19 +111,6 @@
           document.body.classList.add('app-loaded');
         }, 1000);
       });
-      
-      // Service Worker Registration (for PWA)
-      if ('serviceWorker' in navigator) {
-        window.addEventListener('load', function() {
-          navigator.serviceWorker.register('/sw.js')
-            .then(function(registration) {
-              console.log('SW registered: ', registration);
-            })
-            .catch(function(registrationError) {
-              console.log('SW registration failed: ', registrationError);
-            });
-        });
-      }
     </script>
   </body>
 </html>
