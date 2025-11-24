@@ -1,280 +1,186 @@
 import React, { useState } from 'react';
-import ExpenseCard from '../../components/ExpenseCard/ExpenseCard';
-import PaymentModal from '../../components/PaymentModal/PaymentModal';
+import { motion } from 'framer-motion';
 import { useConstruction } from '../../context/ConstructionContext';
-import '../../styles/pages.css';
+import EditableCard from '../../components/EditableCard';
+import { Plus, X, Wallet } from 'lucide-react';
 
 const Expenses = () => {
-  const {
-    expenses,
-    totalExpensesAmount,
-    paidExpensesAmount,
-    balanceExpensesAmount,
-    addExpense,
-    updateExpense,
-    deleteExpense,
-    addPayment
-  } = useConstruction();
-
-  const [showExpenseForm, setShowExpenseForm] = useState(false);
-  const [editingExpense, setEditingExpense] = useState(null);
-  const [showPaymentModal, setShowPaymentModal] = useState(false);
-  const [selectedExpense, setSelectedExpense] = useState(null);
-
-  const [expenseForm, setExpenseForm] = useState({
+  const { expenses, updateExpense, addExpense, deleteExpense } = useConstruction();
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [newExpense, setNewExpense] = useState({
     name: '',
     amount: '',
-    date: '',
-    category: 'other',
+    paid: 0,
+    date: new Date().toISOString().split('T')[0],
     notes: '',
-    vendor: ''
+    status: 'pending'
   });
 
-  const categories = [
-    { value: 'borewell', label: 'Borewell' },
-    { value: 'sump', label: 'Sump' },
-    { value: 'septic-tank', label: 'Septic Tank' },
-    { value: 'electrical', label: 'Electrical' },
-    { value: 'plumbing', label: 'Plumbing' },
-    { value: 'material', label: 'Material' },
-    { value: 'labor', label: 'Labor' },
-    { value: 'other', label: 'Other' }
-  ];
-
-  const handleExpenseSubmit = (e) => {
-    e.preventDefault();
-    
-    const expenseData = {
-      name: expenseForm.name,
-      amount: parseInt(expenseForm.amount),
-      date: expenseForm.date,
-      category: expenseForm.category,
-      notes: expenseForm.notes,
-      vendor: expenseForm.vendor
+  const handleSaveExpense = (id, updatedData) => {
+    const processedData = {
+      ...updatedData,
+      paid: Number(updatedData.paid),
+      amount: Number(updatedData.amount)
     };
-
-    if (editingExpense) {
-      updateExpense(editingExpense.id, expenseData);
-    } else {
-      addExpense(expenseData);
-    }
-
-    resetExpenseForm();
-    setShowExpenseForm(false);
+    updateExpense(id, processedData);
   };
 
-  const resetExpenseForm = () => {
-    setExpenseForm({
+  const handleAddSubmit = (e) => {
+    e.preventDefault();
+    addExpense({
+      ...newExpense,
+      amount: Number(newExpense.amount),
+      paid: Number(newExpense.paid)
+    });
+    setShowAddModal(false);
+    setNewExpense({
       name: '',
       amount: '',
-      date: '',
-      category: 'other',
+      paid: 0,
+      date: new Date().toISOString().split('T')[0],
       notes: '',
-      vendor: ''
+      status: 'pending'
     });
-    setEditingExpense(null);
-  };
-
-  const handleEditExpense = (expense) => {
-    setEditingExpense(expense);
-    setExpenseForm({
-      name: expense.name,
-      amount: expense.amount.toString(),
-      date: expense.date,
-      category: expense.category,
-      notes: expense.notes || '',
-      vendor: expense.vendor || ''
-    });
-    setShowExpenseForm(true);
-  };
-
-  const handleAddPayment = (expense) => {
-    setSelectedExpense(expense);
-    setShowPaymentModal(true);
-  };
-
-  const handlePaymentSubmit = (paymentData) => {
-    addPayment({
-      ...paymentData,
-      type: 'expense',
-      itemId: selectedExpense.id
-    });
-    setShowPaymentModal(false);
   };
 
   return (
-    <div className="expenses-page">
+    <div className="expenses-page" style={{
+      backgroundImage: `linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('/assets/images/tools-bg.jpg')`,
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
+      backgroundAttachment: 'fixed',
+      minHeight: 'calc(100vh - 80px)',
+      padding: '2rem 0',
+      color: 'white',
+      overflowX: 'hidden'
+    }}>
       <div className="container">
-        <div className="page-header">
-          <h1>Other Construction Expenses</h1>
-          <button 
-            className="btn btn-primary"
-            onClick={() => {
-              resetExpenseForm();
-              setShowExpenseForm(!showExpenseForm);
-            }}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+          <motion.h1
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            style={{ color: 'var(--primary)', textShadow: '2px 2px 4px rgba(0,0,0,0.5)' }}
           >
-            <i className="fas fa-plus"></i> 
-            {showExpenseForm ? 'Cancel' : 'Add Expense'}
-          </button>
+            Expenses
+          </motion.h1>
+          <motion.button
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            onClick={() => setShowAddModal(true)}
+            className="btn btn-primary"
+          >
+            <Plus size={20} /> Add Expense
+          </motion.button>
         </div>
 
-        {showExpenseForm && (
-          <div className="card expense-form-card">
-            <h3>{editingExpense ? 'Edit Expense' : 'Add New Expense'}</h3>
-            <form onSubmit={handleExpenseSubmit}>
-              <div className="form-group">
+        <div className="horizontal-scroll-container" style={{
+          display: 'flex',
+          gap: '20px',
+          overflowX: 'auto',
+          padding: '20px 5px',
+          scrollBehavior: 'smooth',
+          WebkitOverflowScrolling: 'touch',
+          scrollbarWidth: 'thin'
+        }}>
+          {expenses.map((expense, index) => (
+            <motion.div
+              key={expense.id}
+              initial={{ opacity: 0, x: 50 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: index * 0.1 }}
+            >
+              <EditableCard
+                data={expense}
+                onSave={handleSaveExpense}
+                onDelete={deleteExpense}
+                type="expense"
+              />
+            </motion.div>
+          ))}
+        </div>
+      </div>
+
+      {/* Add Expense Modal */}
+      {showAddModal && (
+        <div className="modal-overlay" style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0,0,0,0.8)',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          zIndex: 2000
+        }}>
+          <motion.div
+            className="modal-content card"
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            style={{ width: '90%', maxWidth: '500px', background: 'var(--card-bg-light)', color: 'var(--text-dark)' }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+              <h2>Add New Expense</h2>
+              <button onClick={() => setShowAddModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
+                <X size={24} />
+              </button>
+            </div>
+
+            <form onSubmit={handleAddSubmit}>
+              <div className="form-group" style={{ marginBottom: '15px' }}>
                 <label>Expense Name</label>
                 <input
                   type="text"
-                  value={expenseForm.name}
-                  onChange={(e) => setExpenseForm({...expenseForm, name: e.target.value})}
-                  placeholder="Enter expense name"
+                  className="form-control"
+                  value={newExpense.name}
+                  onChange={(e) => setNewExpense({ ...newExpense, name: e.target.value })}
                   required
                 />
               </div>
-
-              <div className="form-row">
-                <div className="form-group">
-                  <label>Amount (₹)</label>
-                  <input
-                    type="number"
-                    value={expenseForm.amount}
-                    onChange={(e) => setExpenseForm({...expenseForm, amount: e.target.value})}
-                    placeholder="Enter total amount"
-                    required
-                  />
-                </div>
-                <div className="form-group">
-                  <label>Date</label>
-                  <input
-                    type="date"
-                    value={expenseForm.date}
-                    onChange={(e) => setExpenseForm({...expenseForm, date: e.target.value})}
-                    required
-                  />
-                </div>
-              </div>
-
-              <div className="form-row">
-                <div className="form-group">
-                  <label>Category</label>
-                  <select
-                    value={expenseForm.category}
-                    onChange={(e) => setExpenseForm({...expenseForm, category: e.target.value})}
-                  >
-                    {categories.map(category => (
-                      <option key={category.value} value={category.value}>
-                        {category.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div className="form-group">
-                  <label>Vendor (Optional)</label>
-                  <input
-                    type="text"
-                    value={expenseForm.vendor}
-                    onChange={(e) => setExpenseForm({...expenseForm, vendor: e.target.value})}
-                    placeholder="Enter vendor name"
-                  />
-                </div>
-              </div>
-
-              <div className="form-group">
-                <label>Notes</label>
-                <textarea
-                  value={expenseForm.notes}
-                  onChange={(e) => setExpenseForm({...expenseForm, notes: e.target.value})}
-                  placeholder="Add any notes about this expense"
-                  rows="3"
+              <div className="form-group" style={{ marginBottom: '15px' }}>
+                <label>Total Amount (₹)</label>
+                <input
+                  type="number"
+                  className="form-control"
+                  value={newExpense.amount}
+                  onChange={(e) => setNewExpense({ ...newExpense, amount: e.target.value })}
+                  required
                 />
               </div>
-
-              <div className="form-actions">
-                <button type="submit" className="btn btn-success">
-                  <i className="fas fa-save"></i> 
-                  {editingExpense ? 'Update Expense' : 'Save Expense'}
-                </button>
-                <button 
-                  type="button" 
-                  className="btn btn-secondary"
-                  onClick={resetExpenseForm}
-                >
-                  <i className="fas fa-undo"></i> Reset
-                </button>
-                {editingExpense && (
-                  <button 
-                    type="button" 
-                    className="btn btn-danger"
-                    onClick={() => {
-                      if (window.confirm('Are you sure you want to cancel editing?')) {
-                        resetExpenseForm();
-                        setShowExpenseForm(false);
-                      }
-                    }}
-                  >
-                    <i className="fas fa-times"></i> Cancel Edit
-                  </button>
-                )}
+              <div className="form-group" style={{ marginBottom: '15px' }}>
+                <label>Initial Paid Amount (₹)</label>
+                <input
+                  type="number"
+                  className="form-control"
+                  value={newExpense.paid}
+                  onChange={(e) => setNewExpense({ ...newExpense, paid: e.target.value })}
+                />
               </div>
+              <div className="form-group" style={{ marginBottom: '15px' }}>
+                <label>Date</label>
+                <input
+                  type="date"
+                  className="form-control"
+                  value={newExpense.date}
+                  onChange={(e) => setNewExpense({ ...newExpense, date: e.target.value })}
+                />
+              </div>
+              <div className="form-group" style={{ marginBottom: '20px' }}>
+                <label>Description</label>
+                <textarea
+                  className="form-control"
+                  value={newExpense.notes}
+                  onChange={(e) => setNewExpense({ ...newExpense, notes: e.target.value })}
+                />
+              </div>
+              <button type="submit" className="btn btn-primary" style={{ width: '100%' }}>
+                <Wallet size={20} /> Add Expense
+              </button>
             </form>
-          </div>
-        )}
-
-        <div className="payment-summary">
-          <div className="summary-card total">
-            <i className="fas fa-receipt"></i>
-            <h3>Total Expenses</h3>
-            <div className="value">₹{totalExpensesAmount.toLocaleString('en-IN')}</div>
-          </div>
-          <div className="summary-card paid">
-            <i className="fas fa-check-circle"></i>
-            <h3>Paid Amount</h3>
-            <div className="value">₹{paidExpensesAmount.toLocaleString('en-IN')}</div>
-          </div>
-          <div className="summary-card balance">
-            <i className="fas fa-clock"></i>
-            <h3>Balance Amount</h3>
-            <div className="value">₹{balanceExpensesAmount.toLocaleString('en-IN')}</div>
-          </div>
+          </motion.div>
         </div>
-
-        <div className="expenses-grid">
-          {expenses.map((expense) => (
-            <ExpenseCard
-              key={expense.id}
-              expense={expense}
-              onEdit={() => handleEditExpense(expense)}
-              onDelete={() => {
-                if (window.confirm(`Are you sure you want to delete "${expense.name}"?`)) {
-                  deleteExpense(expense.id);
-                }
-              }}
-              onAddPayment={() => handleAddPayment(expense)}
-            />
-          ))}
-        </div>
-
-        {expenses.length === 0 && !showExpenseForm && (
-          <div className="card empty-state">
-            <div className="empty-content">
-              <i className="fas fa-receipt"></i>
-              <h3>No Expenses Added</h3>
-              <p>Click "Add Expense" to record your first expense</p>
-            </div>
-          </div>
-        )}
-
-        {showPaymentModal && selectedExpense && (
-          <PaymentModal
-            item={selectedExpense}
-            type="expense"
-            onClose={() => setShowPaymentModal(false)}
-            onSubmit={handlePaymentSubmit}
-          />
-        )}
-      </div>
+      )}
     </div>
   );
 };

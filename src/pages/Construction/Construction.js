@@ -1,322 +1,229 @@
-import React, { useState, useEffect } from 'react';
-import StageCard from '../../components/StageCard/StageCard';
-import PaymentModal from '../../components/PaymentModal/PaymentModal';
+import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useConstruction } from '../../context/ConstructionContext';
-import '../../styles/pages.css';
+import EditableCard from '../../components/EditableCard';
+import { PlusCircle, X } from 'lucide-react';
+import { toast } from 'react-toastify';
 
 const Construction = () => {
-  const {
-    projectData,
-    stages,
-    totalConstructionCost,
-    paidConstructionAmount,
-    balanceConstructionAmount,
-    overallProgress,
-    calculateStageAmount,
-    addStage,
-    updateStage,
-    deleteStage,
-    addPayment
-  } = useConstruction();
-
-  const [showStageForm, setShowStageForm] = useState(false);
-  const [editingStage, setEditingStage] = useState(null);
-  const [showPaymentModal, setShowPaymentModal] = useState(false);
-  const [selectedStage, setSelectedStage] = useState(null);
-
-  const [stageForm, setStageForm] = useState({
+  const { stages, updateStage, addStage, deleteStage, projectData } = useConstruction();
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [newStage, setNewStage] = useState({
     name: '',
     percentage: '',
-    amount: '',
-    paid: '',
-    date: '',
-    notes: ''
+    date: new Date().toISOString().split('T')[0],
+    description: ''
   });
 
-  // Auto-calculate amount when percentage changes
-  useEffect(() => {
-    if (stageForm.percentage && !editingStage) {
-      const calculatedAmount = calculateStageAmount(parseInt(stageForm.percentage));
-      setStageForm(prev => ({
-        ...prev,
-        amount: calculatedAmount.toString()
-      }));
-    }
-  }, [stageForm.percentage, calculateStageAmount, editingStage]);
-
-  const handleStageSubmit = (e) => {
-    e.preventDefault();
-    
-    const stageData = {
-      name: stageForm.name,
-      percentage: parseInt(stageForm.percentage),
-      amount: parseInt(stageForm.amount),
-      paid: parseInt(stageForm.paid) || 0,
-      date: stageForm.date,
-      notes: stageForm.notes
+  const handleSaveStage = (id, updatedData) => {
+    const processedData = {
+      ...updatedData,
+      paid: Number(updatedData.paid)
     };
-
-    if (editingStage) {
-      updateStage(editingStage.id, stageData);
-    } else {
-      addStage(stageData);
-    }
-
-    resetStageForm();
-    setShowStageForm(false);
+    updateStage(id, processedData);
   };
 
-  const resetStageForm = () => {
-    setStageForm({
+  const handleAddStage = (e) => {
+    e.preventDefault();
+    if (!newStage.name || !newStage.percentage) {
+      toast.error('Please fill in all required fields');
+      return;
+    }
+
+    addStage({
+      ...newStage,
+      percentage: Number(newStage.percentage)
+    });
+
+    setShowAddModal(false);
+    setNewStage({
       name: '',
       percentage: '',
-      amount: '',
-      paid: '',
-      date: '',
-      notes: ''
+      date: new Date().toISOString().split('T')[0],
+      description: ''
     });
-    setEditingStage(null);
+    toast.success('✅ New Stage Added Successfully');
   };
 
-  const handleEditStage = (stage) => {
-    setEditingStage(stage);
-    setStageForm({
-      name: stage.name,
-      percentage: stage.percentage.toString(),
-      amount: stage.amount.toString(),
-      paid: stage.paid.toString(),
-      date: stage.date,
-      notes: stage.notes || ''
-    });
-    setShowStageForm(true);
+  const calculateAmount = (percent) => {
+    if (!percent) return 0;
+    return Math.round((projectData.totalCost * Number(percent)) / 100);
   };
-
-  const handleAddPayment = (stage) => {
-    setSelectedStage(stage);
-    setShowPaymentModal(true);
-  };
-
-  const handlePaymentSubmit = (paymentData) => {
-    addPayment({
-      ...paymentData,
-      type: 'construction',
-      itemId: selectedStage.id
-    });
-    setShowPaymentModal(false);
-  };
-
-  const currentStatus = stages.find(stage => stage.status === 'in-progress') || 
-                       stages.find(stage => stage.status === 'completed');
 
   return (
-    <div className="construction-page">
+    <div className="construction-page" style={{
+      backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url('/assets/images/construction-site-bg.jpg')`,
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
+      backgroundAttachment: 'fixed',
+      minHeight: 'calc(100vh - 80px)',
+      padding: '2rem 0',
+      color: 'white',
+      overflowX: 'hidden'
+    }}>
       <div className="container">
-        <div className="page-header">
-          <h1>Construction Progress</h1>
-          <button 
-            className="btn btn-primary"
-            onClick={() => {
-              resetStageForm();
-              setShowStageForm(!showStageForm);
-            }}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+          <motion.h1
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            style={{ margin: 0, color: 'var(--primary)', textShadow: '2px 2px 4px rgba(0,0,0,0.5)' }}
           >
-            <i className="fas fa-plus"></i> 
-            {showStageForm ? 'Cancel' : 'Add Stage'}
-          </button>
+            Construction Stages
+          </motion.h1>
+
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="btn btn-primary"
+            onClick={() => setShowAddModal(true)}
+            style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
+          >
+            <PlusCircle size={20} /> Add Stage
+          </motion.button>
         </div>
 
-        {showStageForm && (
-          <div className="card stage-form-card">
-            <h3>{editingStage ? 'Edit Stage' : 'Add New Stage'}</h3>
-            <form onSubmit={handleStageSubmit}>
-              <div className="form-row">
-                <div className="form-group">
-                  <label>Stage Name</label>
-                  <input
-                    type="text"
-                    value={stageForm.name}
-                    onChange={(e) => setStageForm({...stageForm, name: e.target.value})}
-                    placeholder="Enter stage name"
-                    required
-                  />
-                </div>
-                <div className="form-group">
-                  <label>Percentage (%)</label>
-                  <input
-                    type="number"
-                    value={stageForm.percentage}
-                    onChange={(e) => setStageForm({...stageForm, percentage: e.target.value})}
-                    placeholder="Enter percentage"
-                    min="1"
-                    max="100"
-                    required
-                  />
-                </div>
-              </div>
-              
-              <div className="form-row">
-                <div className="form-group">
-                  <label>Calculated Amount (₹)</label>
-                  <input
-                    type="number"
-                    value={stageForm.amount}
-                    onChange={(e) => setStageForm({...stageForm, amount: e.target.value})}
-                    placeholder="Auto-calculated amount"
-                    readOnly={!editingStage}
-                    required
-                  />
-                  <small className="form-help">
-                    {!editingStage ? 'Automatically calculated from percentage' : 'You can edit this amount'}
-                  </small>
-                </div>
-                <div className="form-group">
-                  <label>Already Paid (₹)</label>
-                  <input
-                    type="number"
-                    value={stageForm.paid}
-                    onChange={(e) => setStageForm({...stageForm, paid: e.target.value})}
-                    placeholder="Enter paid amount"
-                    min="0"
-                    max={stageForm.amount}
-                  />
-                </div>
-              </div>
-              
-              <div className="form-row">
-                <div className="form-group">
-                  <label>Start Date</label>
-                  <input
-                    type="date"
-                    value={stageForm.date}
-                    onChange={(e) => setStageForm({...stageForm, date: e.target.value})}
-                  />
-                </div>
-              </div>
-              
-              <div className="form-group">
-                <label>Notes</label>
-                <textarea
-                  value={stageForm.notes}
-                  onChange={(e) => setStageForm({...stageForm, notes: e.target.value})}
-                  placeholder="Add any notes about this stage"
-                  rows="3"
-                />
-              </div>
-              
-              <div className="form-summary">
-                <div className="summary-item">
-                  <span>Balance Amount:</span>
-                  <span>₹{(parseInt(stageForm.amount) - parseInt(stageForm.paid || 0)).toLocaleString('en-IN')}</span>
-                </div>
-              </div>
-
-              <div className="form-actions">
-                <button type="submit" className="btn btn-success">
-                  <i className="fas fa-save"></i> 
-                  {editingStage ? 'Update Stage' : 'Save Stage'}
-                </button>
-                <button 
-                  type="button" 
-                  className="btn btn-secondary"
-                  onClick={resetStageForm}
-                >
-                  <i className="fas fa-undo"></i> Reset
-                </button>
-                {editingStage && (
-                  <button 
-                    type="button" 
-                    className="btn btn-danger"
-                    onClick={() => {
-                      if (window.confirm('Are you sure you want to cancel editing?')) {
-                        resetStageForm();
-                        setShowStageForm(false);
-                      }
-                    }}
-                  >
-                    <i className="fas fa-times"></i> Cancel Edit
-                  </button>
-                )}
-              </div>
-            </form>
-          </div>
-        )}
-
-        <div className="payment-summary">
-          <div className="summary-card total">
-            <i className="fas fa-receipt"></i>
-            <h3>Total Construction Cost</h3>
-            <div className="value">₹{totalConstructionCost.toLocaleString('en-IN')}</div>
-          </div>
-          <div className="summary-card paid">
-            <i className="fas fa-check-circle"></i>
-            <h3>Paid Amount</h3>
-            <div className="value">₹{paidConstructionAmount.toLocaleString('en-IN')}</div>
-          </div>
-          <div className="summary-card balance">
-            <i className="fas fa-clock"></i>
-            <h3>Balance Amount</h3>
-            <div className="value">₹{balanceConstructionAmount.toLocaleString('en-IN')}</div>
-          </div>
-        </div>
-
-        <div className="progress-container card">
-          <div className="progress-info">
-            <div>
-              <h3>Overall Progress</h3>
-              <p>{overallProgress}% completed</p>
-            </div>
-            <div>
-              <h3>Current Status</h3>
-              <p>{currentStatus ? `${currentStatus.name} - ${currentStatus.status}` : 'Not Started'}</p>
-            </div>
-            <div>
-              <h3>Last Updated</h3>
-              <p>{new Date().toLocaleDateString()}</p>
-            </div>
-          </div>
-          <div className="progress-bar">
-            <div 
-              className="progress" 
-              style={{width: `${overallProgress}%`}}
-            ></div>
-          </div>
-        </div>
-
-        <div className="stages-grid">
-          {stages.map((stage) => (
-            <StageCard
+        <div className="horizontal-scroll-container" style={{
+          display: 'flex',
+          gap: '20px',
+          overflowX: 'auto',
+          padding: '20px 5px',
+          scrollBehavior: 'smooth',
+          WebkitOverflowScrolling: 'touch',
+          scrollbarWidth: 'thin'
+        }}>
+          {stages.map((stage, index) => (
+            <motion.div
               key={stage.id}
-              stage={stage}
-              onEdit={() => handleEditStage(stage)}
-              onDelete={() => {
-                if (window.confirm(`Are you sure you want to delete "${stage.name}"?`)) {
-                  deleteStage(stage.id);
-                }
-              }}
-              onAddPayment={() => handleAddPayment(stage)}
-            />
+              initial={{ opacity: 0, x: 50 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: index * 0.1 }}
+            >
+              <EditableCard
+                data={stage}
+                onSave={handleSaveStage}
+                onDelete={deleteStage}
+                type="stage"
+              />
+            </motion.div>
           ))}
         </div>
-
-        {stages.length === 0 && (
-          <div className="card empty-state">
-            <div className="empty-content">
-              <i className="fas fa-tasks"></i>
-              <h3>No Construction Stages</h3>
-              <p>Click "Add Stage" to create your first construction stage</p>
-            </div>
-          </div>
-        )}
-
-        {showPaymentModal && selectedStage && (
-          <PaymentModal
-            item={selectedStage}
-            type="construction"
-            onClose={() => setShowPaymentModal(false)}
-            onSubmit={handlePaymentSubmit}
-          />
-        )}
       </div>
+
+      {/* Add Stage Modal */}
+      <AnimatePresence>
+        {showAddModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="modal-overlay"
+            style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background: 'rgba(0,0,0,0.8)',
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              zIndex: 1000
+            }}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="modal-content"
+              style={{
+                background: 'var(--card-bg)',
+                padding: '2rem',
+                borderRadius: '15px',
+                width: '90%',
+                maxWidth: '500px',
+                border: '1px solid var(--border-color)',
+                position: 'relative'
+              }}
+            >
+              <button
+                onClick={() => setShowAddModal(false)}
+                style={{ position: 'absolute', top: '15px', right: '15px', background: 'none', border: 'none', color: 'white', cursor: 'pointer' }}
+              >
+                <X size={24} />
+              </button>
+
+              <h2 style={{ color: 'var(--primary)', marginBottom: '1.5rem' }}>Add New Stage</h2>
+
+              <form onSubmit={handleAddStage} style={{ display: 'grid', gap: '15px' }}>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '5px', opacity: 0.8 }}>Stage Name</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    value={newStage.name}
+                    onChange={(e) => setNewStage({ ...newStage, name: e.target.value })}
+                    placeholder="e.g. Interior Work"
+                    required
+                  />
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
+                  <div>
+                    <label style={{ display: 'block', marginBottom: '5px', opacity: 0.8 }}>Percentage (%)</label>
+                    <input
+                      type="number"
+                      className="form-control"
+                      value={newStage.percentage}
+                      onChange={(e) => setNewStage({ ...newStage, percentage: e.target.value })}
+                      placeholder="0"
+                      min="0"
+                      max="100"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', marginBottom: '5px', opacity: 0.8 }}>Date</label>
+                    <input
+                      type="date"
+                      className="form-control"
+                      value={newStage.date}
+                      onChange={(e) => setNewStage({ ...newStage, date: e.target.value })}
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div style={{ background: 'rgba(255,255,255,0.05)', padding: '10px', borderRadius: '8px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
+                    <span style={{ opacity: 0.7 }}>Calculated Amount:</span>
+                    <span style={{ fontWeight: 'bold', color: 'var(--accent)' }}>
+                      ₹{calculateAmount(newStage.percentage).toLocaleString('en-IN')}
+                    </span>
+                  </div>
+                  <div style={{ fontSize: '0.8rem', opacity: 0.5 }}>
+                    Based on {newStage.percentage || 0}% of Total Project Cost
+                  </div>
+                </div>
+
+                <div>
+                  <label style={{ display: 'block', marginBottom: '5px', opacity: 0.8 }}>Description</label>
+                  <textarea
+                    className="form-control"
+                    value={newStage.description}
+                    onChange={(e) => setNewStage({ ...newStage, description: e.target.value })}
+                    rows="3"
+                    placeholder="Stage details..."
+                  />
+                </div>
+
+                <button type="submit" className="btn btn-primary" style={{ marginTop: '10px' }}>
+                  Add Stage
+                </button>
+              </form>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
