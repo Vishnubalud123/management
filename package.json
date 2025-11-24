@@ -4,6 +4,7 @@
   "description": "PGK Construction - Complete Construction Project Management System",
   "private": true,
   "dependencies": {
+      "vite": "^5.0.0",
     "@react-three/drei": "^9.56.24",
     "@react-three/fiber": "^8.12.0",
     "@testing-library/jest-dom": "^5.16.4",
