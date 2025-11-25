@@ -398,3 +398,60 @@
   font-size: 1.3rem;
   color: var(--primary);
 }
+/* Home Page Theme-Based Text Colors */
+.home-page {
+  color: white; /* Default for dark backgrounds */
+}
+
+/* Light Mode Detection */
+@media (prefers-color-scheme: light) {
+  .home-page {
+    background: linear-gradient(rgba(255,255,255,0.9), rgba(255,255,255,0.9)), url('/assets/images/modern-house-bg.jpg') !important;
+    color: #111 !important;
+  }
+  
+  .home-page h1,
+  .home-page h2,
+  .home-page h3,
+  .home-page h4,
+  .home-page h5,
+  .home-page h6,
+  .home-page p,
+  .home-page span,
+  .home-page div,
+  .home-page label {
+    color: #111 !important;
+  }
+  
+  .home-page .card {
+    background: rgba(255, 255, 255, 0.95) !important;
+    color: #111 !important;
+    border: 1px solid rgba(0, 0, 0, 0.1) !important;
+  }
+}
+
+/* Dark Mode Detection */
+@media (prefers-color-scheme: dark) {
+  .home-page {
+    background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('/assets/images/modern-house-bg.jpg') !important;
+    color: #fff !important;
+  }
+  
+  .home-page h1,
+  .home-page h2,
+  .home-page h3,
+  .home-page h4,
+  .home-page h5,
+  .home-page h6,
+  .home-page p,
+  .home-page span,
+  .home-page div,
+  .home-page label {
+    color: #fff !important;
+  }
+  
+  .home-page .card {
+    background: rgba(34, 40, 49, 0.85) !important;
+    color: #fff !important;
+  }
+}
