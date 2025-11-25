@@ -8,6 +8,8 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
+    "start": "vite preview --port 3000",
+    "postinstall": "chmod +x node_modules/.bin/vite || true",
     "lint": "eslint src/",
     "lint:fix": "eslint src/ --fix",
     "format": "prettier --write src/**/*.{js,jsx,json,css,md}"
