@@ -22,8 +22,8 @@ const INITIAL_STAGES = [
 ];
 
 const INITIAL_EXPENSES = [
-    { id: 1, name: "Septic Tank", amount: 25000, paid: 0, date: "2023-10-05", category: "septic-tank", status: "pending", notes: "Installation in progress" },
-    { id: 2, name: "Sump", amount: 15000, paid: 15000, date: "2023-09-20", category: "sump", status: "paid", notes: "5000L capacity sump installed" },
+    { id: 1, name: "Septic Tank", amount: 40000, paid: 0, date: "2023-10-05", category: "septic-tank", status: "pending", notes: "Installation in progress" },
+    { id: 2, name: "Sump", amount: 40000, paid: 15000, date: "2023-09-20", category: "sump", status: "paid", notes: "5000L capacity sump installed" },
     { id: 3, name: "Borewell", amount: 50000, paid: 50000, date: "2023-09-10", category: "borewell", status: "paid", notes: "Completed successfully with good water flow" }
 ];
 
