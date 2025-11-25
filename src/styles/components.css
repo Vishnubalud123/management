@@ -865,3 +865,254 @@
     align-self: flex-end;
   }
 }
+/* Hamburger Menu Styles */
+.hamburger {
+  display: none;
+  background: none;
+  border: none;
+  color: white;
+  font-size: 1.8rem;
+  cursor: pointer;
+  padding: 0.5rem;
+  z-index: 1001;
+  transition: transform 0.3s ease;
+}
+
+.hamburger:hover {
+  transform: scale(1.1);
+}
+
+/* Responsive Cards Container */
+.cards-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 20px;
+  padding: 20px;
+  justify-items: center;
+  align-items: stretch;
+  overflow-x: hidden;
+}
+
+.cards-container > * {
+  width: 100%;
+  max-width: 350px;
+}
+
+/* Responsive Media Queries */
+@media (max-width: 1024px) {
+  .cards-container {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .logo h1 {
+    font-size: 1.5rem;
+  }
+  
+  .logo i {
+    font-size: 2rem;
+  }
+}
+
+@media (max-width: 768px) {
+  /* Hamburger Menu Toggle */
+  .hamburger {
+    display: block;
+  }
+  
+  .header {
+    padding: 0.75rem 0;
+  }
+  
+  .header-content {
+    position: relative;
+  }
+  
+  .logo {
+    gap: 10px;
+  }
+  
+  .logo h1 {
+    font-size: 1.2rem;
+  }
+  
+  .logo i {
+    font-size: 1.5rem;
+  }
+  
+  /* Mobile Navigation */
+  .nav {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: rgba(34, 40, 49, 0.98);
+    backdrop-filter: blur(10px);
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-in-out, padding 0.3s ease-in-out;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .nav.active {
+    max-height: 400px;
+    padding: 1rem 0;
+  }
+  
+  .nav-list {
+    flex-direction: column;
+    gap: 0;
+    align-items: stretch;
+    width: 100%;
+  }
+  
+  .nav-item {
+    width: 100%;
+    text-align: center;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  
+  .nav-item:last-child {
+    border-bottom: none;
+  }
+  
+  .nav-link {
+    padding: 1rem;
+    width: 100%;
+    justify-content: center;
+    font-size: 1rem;
+  }
+  
+  /* Cards */
+  .cards-container {
+    grid-template-columns: 1fr;
+    gap: 15px;
+    padding: 15px;
+  }
+  
+  /* Footer */
+  .footer {
+    padding: 1.5rem 0;
+  }
+  
+  .footer-content {
+    flex-direction: column;
+    gap: 1rem;
+    text-align: center;
+  }
+  
+  .footer-links {
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  
+  .footer-copyright {
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .header {
+    padding: 0.5rem 0;
+  }
+  
+  .logo h1 {
+    font-size: 1rem;
+  }
+  
+  .logo i {
+    font-size: 1.3rem;
+  }
+  
+  .hamburger {
+    font-size: 1.5rem;
+  }
+  
+  .footer {
+    padding: 1rem 0;
+  }
+  
+  .footer-logo {
+    font-size: 1.2rem;
+  }
+  
+  .footer-copyright {
+    font-size: 0.75rem;
+  }
+  
+  .footer-links {
+    gap: 15px;
+  }
+}
+
+/* Bootstrap Navbar Custom Styles */
+.navbar-brand {
+  font-size: 1.5rem;
+  display: flex;
+  align-items: center;
+}
+
+.navbar-brand i {
+  font-size: 1.8rem;
+}
+
+.navbar-toggler {
+  border-color: rgba(245, 197, 66, 0.5);
+  padding: 0.5rem 0.75rem;
+}
+
+.navbar-toggler:focus {
+  box-shadow: 0 0 0 0.25rem rgba(245, 197, 66, 0.25);
+}
+
+.navbar-toggler-icon {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='%23F5C542' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+}
+
+.nav-link {
+  padding: 0.5rem 1rem;
+  transition: all 0.3s ease;
+  font-weight: 500;
+}
+
+.nav-link:hover {
+  background-color: rgba(245, 197, 66, 0.1);
+  border-radius: 4px;
+  color: var(--warning) !important;
+}
+
+.nav-link.active {
+  background-color: rgba(245, 197, 66, 0.2);
+  border-radius: 4px;
+  color: var(--warning) !important;
+}
+
+/* Responsive Navbar Adjustments */
+@media (max-width: 991px) {
+  .navbar-collapse {
+    background-color: rgba(34, 40, 49, 0.98);
+    backdrop-filter: blur(10px);
+    padding: 1rem;
+    margin-top: 0.5rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  }
+  
+  .nav-link {
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  
+  .nav-item:last-child .nav-link {
+    border-bottom: none;
+  }
+}
+
+@media (max-width: 576px) {
+  .navbar-brand {
+    font-size: 1.2rem;
+  }
+  
+  .navbar-brand i {
+    font-size: 1.5rem;
+  }
+}
